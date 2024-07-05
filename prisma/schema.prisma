@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// Define the generator for the Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Define the datasource for the database connection
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id              String     @id @default(uuid())
+  name            String
+  email           String     @unique  
+  phoneNumber     String?
+  referralCode    String     @unique @default(uuid())
+  referrals       Referral[]
+  referredBy      String?
+  referralsPoints Int        @default(0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  profilePicture  String?
+}
+
+// Referral model
+model Referral {
+  id           String         @id @default(uuid())
+  referrer     User           @relation(fields: [referrerId], references: [id])
+  referrerId   String
+  refereeName  String
+  refereeEmail String
+  status       ReferralStatus @default(PENDING)
+  reward       String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+// Enum for referral status
+enum ReferralStatus {
+  PENDING
+  USER_REGISTER
+  COURSE_PURCHASED
+}
