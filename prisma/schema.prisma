@@ -46,6 +46,6 @@ model Referral {
 // Enum for referral status
 enum ReferralStatus {
   PENDING
-  USER_REGISTER
+  USER_REGISTERED
   COURSE_PURCHASED
 }

@@ -1,72 +1,75 @@
-const prisma = require("../config/prisma-client");
+const prisma = require("../config/prisma-client"); // Import Prisma client for interacting with the database
 
 // Function to update referral status
 async function updateReferralStatus(refereeEmail, status) {
   try {
+    // Update the referral with the provided email address to the new status using Prisma
     const updatedReferral = await prisma.referral.update({
-      where: { refereeEmail },
-      data: { status },
+      where: { refereeEmail }, // Find the referral by refereeEmail
+      data: { status }, // Update the status property of the referral
     });
 
-    return { message: "Referral status updated successfully", data: updatedReferral };
-  } catch (error) {
-    if (error.code === 'P2025') { // Prisma error code for record not found
+    if (!updatedReferral) {
+      // If no referral is found, return an error message
       return { error: "Referral not found or already updated" };
     }
-    console.error("Error updating referral status:", error.message);
-    return { error: "Failed to update referral status" };
+
+    // Return a success message and the updated referral data
+    return {
+      message: "Referral status updated successfully",
+      data: updatedReferral,
+    };
+  } catch (error) {
+    console.error("Error updating referral status:", error.message); // Log the error message
+    return { error: "Failed to update referral status" }; // Return a generic error response
   }
 }
 
 // Function to handle referral logic when a user registers
 async function handleUserRegistration(refereeEmail, userId) {
   try {
-    const result = await updateReferralStatus(refereeEmail, "USER_REGISTER");
+    // Update the referral status to "USER_REGISTERED" for the given email
+    const result = await updateReferralStatus(refereeEmail, "USER_REGISTERED");
 
     if (result.error) {
+      // If there's an error updating the referral status, return the error
       return result;
     }
 
-    // Optionally, you can add additional logic here, such as awarding points to the referrer
-    const referral = await prisma.referral.findUnique({
-      where: { refereeEmail },
-    });
-
+    // Award points to the referrer using their ID from the updated referral
     await prisma.user.update({
-      where: { id: referral.referrerId },
-      data: { referralsPoints: { increment: 10 } },
+      where: { id: result.data.referrerId }, // Find user by referrerId
+      data: { referralsPoints: { increment: 10 } }, // Increment their points by 10
     });
 
-    return result;
+    return result; // Return the successful update result
   } catch (error) {
-    console.error("Error handling user registration:", error.message);
-    return { error: "Failed to handle user registration" };
+    console.error("Error handling user registration:", error.message); // Log the error message
+    return { error: "Failed to handle user registration" }; // Return a generic error response
   }
 }
 
 // Function to handle referral logic when a course is purchased
 async function handleCoursePurchase(refereeEmail) {
   try {
+    // Update the referral status to "COURSE_PURCHASED" for the given email
     const result = await updateReferralStatus(refereeEmail, "COURSE_PURCHASED");
 
     if (result.error) {
+      // If there's an error updating the referral status, return the error
       return result;
     }
 
-    // Optionally, you can add additional logic here, such as awarding points to the referrer
-    const referral = await prisma.referral.findUnique({
-      where: { refereeEmail },
-    });
-
+    // Award points to the referrer using their ID from the updated referral
     await prisma.user.update({
-      where: { id: referral.referrerId },
-      data: { referralsPoints: { increment: 20 } },
+      where: { id: result.data.referrerId }, // Find user by referrerId
+      data: { referralsPoints: { increment: 20 } }, // Increment their points by 20
     });
 
-    return result;
+    return result; // Return the successful update result
   } catch (error) {
-    console.error("Error handling course purchase:", error.message);
-    return { error: "Failed to handle course purchase" };
+    console.error("Error handling course purchase:", error.message); // Log the error message
+    return { error: "Failed to handle course purchase" }; // Return a generic error response
   }
 }
 
