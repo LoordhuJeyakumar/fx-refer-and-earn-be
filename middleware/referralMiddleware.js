@@ -1,5 +1,6 @@
 const referralService = require("../services/referralService");
 
+
 // Middleware to handle user registration
 async function userRegistrationHandler(req, res, next) {
   try {
