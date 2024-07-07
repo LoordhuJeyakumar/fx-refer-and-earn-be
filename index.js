@@ -26,7 +26,7 @@ async function connectToDatabase() {
     setTimeout(connectToDatabase, 5000);
   }
 }
-console.log(process.env.DATABASE_URL);
+
 
 // Initial attempt to connect
 connectToDatabase();
