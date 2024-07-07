@@ -3,6 +3,7 @@ const prisma = require("./config/prisma-client");
 const config = require("./config/envConfig");
 
 console.log("Connecting to database.....");
+const port = config.PORT || 3000;
 
 // Function to connect to database with retry logic
 async function connectToDatabase() {
@@ -15,8 +16,8 @@ async function connectToDatabase() {
     console.log("Connected to the MySql...");
 
     // Start the server
-    app.listen(config.PORT, () => {
-      console.log(`Server running on port ${config.PORT}`);
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
     });
   } catch (error) {
     console.log("Error connecting to the MySql", error.message);
