@@ -12,13 +12,29 @@ const referralController = {
         message,
       } = req.body;
 
+      // Check if the user already exists
+      let user = await prisma.user.findUnique({
+        where: {
+          email: referrerEmail,
+        },
+      });
+
+      // If the user does not exist, create a new user
+      if (!user) {
+        user = await prisma.user.create({
+          data: {
+            name: referrerName,
+            email: referrerEmail,
+          },
+        });
+      }
+
       // Create a new referral in the database
       const newReferral = await prisma.referral.create({
         data: {
-          referrerName,
-          referrerEmail,
-          refereeName,
-          refereeEmail,
+          referrerId: user.id,
+          refereeName: refereeName,
+          refereeEmail: refereeEmail,
           status: "PENDING",
           reward: null,
         },

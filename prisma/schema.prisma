@@ -33,7 +33,7 @@ model User {
 // Referral model
 model Referral {
   id           String         @id @default(uuid())
-  referrer     User           @relation(fields: [referrerId], references: [id])
+  referrer     User?           @relation(fields: [referrerId], references: [id])
   referrerId   String
   refereeName  String
   refereeEmail String
