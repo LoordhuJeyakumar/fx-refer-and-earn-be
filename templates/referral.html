@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        .content {
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666666;
+        }
+        .reward-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>{{companyName}}</h1>
+        </div>
+        
+        <div class="content">
+            <h2>Hi {{refereeName}},</h2>
+            
+            <p>{{referrerName}} thinks you'd love {{companyName}} and has invited you to join!</p>
+            
+            {{#if customMessage}}
+            <p><em>"{{customMessage}}"</em></p>
+            {{/if}}
+            
+            <div class="reward-box">
+                <h3>🎉 Special Offer</h3>
+                <p>Sign up now and you'll both receive {{rewardAmount}} in credits!</p>
+            </div>
+            
+            <p>Ready to get started? Click the button below:</p>
+            
+            <a href="{{signupLink}}" class="button">Join {{companyName}}</a>
+            
+            <p>This invitation will expire in 7 days.</p>
+        </div>
+        
+        <div class="footer">
+            <p>This email was sent to {{refereeEmail}} because {{referrerName}} invited you to {{companyName}}.</p>
+            <p>If you don't want to receive these emails, you can ignore this message.</p>
+        </div>
+    </div>
+</body>
+</html>
