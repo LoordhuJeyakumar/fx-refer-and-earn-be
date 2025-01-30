@@ -1,51 +1,208 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-// Define the generator for the Prisma Client
 generator client {
   provider = "prisma-client-js"
 }
 
-// Define the datasource for the database connection
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-// User model
+// User model with enhanced referral tracking
+/* model User {
+  id                String     @id @default(uuid())
+  name              String
+  email             String     @unique
+  phoneNumber       String?
+  referralCode      String     @unique @default(uuid())
+  referrals         Referral[] @relation("ReferrerToReferral")
+  referredByUser    User?      @relation("UserReferrals", fields: [referredById], references: [id])
+  referredById      String?
+  referredUsers     User[]     @relation("UserReferrals")
+  referralPoints    Int        @default(0)
+  totalEarnings     Decimal    @default(0) @db.Decimal(10, 2)
+  referralTier      ReferralTier @default(BRONZE)
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  profilePicture    String?
+  emailVerified     Boolean    @default(false)
+  referralStats     ReferralStats?
+  notifications     Notification[]
+  referralHistory   ReferralHistory[]
+} */
+
+// Enhanced Referral model
+/* model Referral {
+  id              String         @id @default(uuid())
+  referrer        User          @relation("ReferrerToReferral", fields: [referrerId], references: [id])
+  referrerId      String
+  refereeName     String
+  refereeEmail    String
+  status          ReferralStatus @default(PENDING)
+  rewardAmount    Decimal?      @db.Decimal(10, 2)
+  rewardStatus    RewardStatus? @default(PENDING)
+  expiresAt       DateTime?
+  message         String?       @db.Text
+  registrationDate DateTime?
+  purchaseDate    DateTime?
+  purchaseAmount  Decimal?      @db.Decimal(10, 2)
+  courseId        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  history         ReferralHistory[]
+
+  @@index([refereeEmail])
+  @@index([status])
+} */
+
+// User model with enhanced referral tracking
 model User {
-  id              String     @id @default(uuid())
-  name            String
-  email           String     @unique  
-  phoneNumber     String?
-  referralCode    String     @unique @default(uuid())
-  referrals       Referral[]
-  referredBy      String?
-  referralsPoints Int        @default(0)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-  profilePicture  String?
+  id                String     @id @default(uuid())
+  name              String
+  email             String     @unique
+  phoneNumber       String?
+  referralCode      String     @unique @default(uuid())
+  referrals         Referral[] @relation("ReferrerToReferral")
+  referredByUser    User?      @relation("UserReferrals", fields: [referredById], references: [id])
+  referredById      String?
+  referredUsers     User[]     @relation("UserReferrals")
+  referralPoints    Int        @default(0)
+  totalEarnings     Decimal    @default(0) @db.Decimal(10, 2)
+  referralTier      ReferralTier @default(BRONZE)
+  isActive          Boolean    @default(true)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  profilePicture    String?
+  emailVerified     Boolean    @default(false)
+  referralStats     ReferralStats?
+  notifications     Notification[]
+  referralHistory   ReferralHistory[]
 }
 
-// Referral model
+// Enhanced Referral model
 model Referral {
-  id           String         @id @default(uuid())
-  referrer     User?           @relation(fields: [referrerId], references: [id])
-  referrerId   String
-  refereeName  String
-  refereeEmail String
-  status       ReferralStatus @default(PENDING)
-  reward       String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id              String         @id @default(uuid())
+  referrer        User          @relation("ReferrerToReferral", fields: [referrerId], references: [id])
+  referrerId      String
+  refereeName     String
+  refereeEmail    String
+  referralCode    String        @unique // Add this line
+  status          ReferralStatus @default(PENDING)
+  rewardAmount    Decimal?      @db.Decimal(10, 2)
+  rewardStatus    RewardStatus? @default(PENDING)
+  expiresAt       DateTime?
+  message         String?       @db.Text
+  registrationDate DateTime?
+  purchaseDate    DateTime?
+  purchaseAmount  Decimal?      @db.Decimal(10, 2)
+  courseId        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  history         ReferralHistory[]
+
+  @@index([refereeEmail])
+  @@index([status])
 }
 
-// Enum for referral status
+
+// New model for tracking referral statistics
+model ReferralStats {
+  id                  String    @id @default(uuid())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String    @unique
+  totalReferrals      Int       @default(0)
+  successfulReferrals Int       @default(0)
+  pendingReferrals    Int       @default(0)
+  totalRewards        Decimal   @default(0) @db.Decimal(10, 2)
+  monthlyReferrals    Int       @default(0)
+  monthlyRewards      Decimal   @default(0) @db.Decimal(10, 2)
+  lastRewardDate      DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+// New model for referral history tracking
+model ReferralHistory {
+  id          String         @id @default(uuid())
+  referral    Referral      @relation(fields: [referralId], references: [id])
+  referralId  String
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  action      ReferralAction
+  status      ReferralStatus
+  description String?       @db.Text
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+
+  @@index([referralId])
+  @@index([userId])
+}
+
+// New model for user notifications
+model Notification {
+  id        String            @id @default(uuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  metadata  Json?
+
+  @@index([userId])
+  @@index([type])
+}
+
+// Enhanced ReferralStatus enum
 enum ReferralStatus {
   PENDING
   USER_REGISTERED
+  COURSE_PURCHASED
+  EXPIRED
+  CANCELLED
+  REJECTED
+}
+
+// New enum for reward status
+enum RewardStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  CANCELLED
+}
+
+// New enum for referral tiers
+enum ReferralTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+// New enum for notification types
+enum NotificationType {
+  REFERRAL_CREATED
+  REFERRAL_ACCEPTED
+  REFERRAL_EXPIRED
+  REWARD_EARNED
+  TIER_UPGRADED
+  SYSTEM_NOTICE
+}
+
+// New enum for referral actions
+enum ReferralAction {
+  CREATED
+  STATUS_UPDATED
+  REWARD_PROCESSED
+  EXPIRED
+  CANCELLED
+  REGISTRATION_COMPLETED
   COURSE_PURCHASED
 }
