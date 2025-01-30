@@ -6,7 +6,7 @@ const appRouter = require("express").Router();
 // Welcome message and API status route
 appRouter.get("/", (req, res) => {
   res.status(200).json({
-    message: "Welcome to Accredian Refer & Earn API",
+    message: "Welcome to Francis Xavier Refer & Earn API",
     version: "1.0.0",
     status: "healthy",
   });
